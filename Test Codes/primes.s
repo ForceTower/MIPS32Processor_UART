@@ -89,7 +89,7 @@ end_input_loop:
 	subi r13, r13, 1 #subtracs 1 from number of inputs left
 	bne r13, r0, input_loop #if there are more numbers to input repeats, otherwise start program
 
-#Here it is where the exponetial code starts
+#Here it is where the prime sequence code starts
 start:
 	pop r8 #The number of primes we need to generate
 	movia r9, primes #vector pointer
