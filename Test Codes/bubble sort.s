@@ -1,4 +1,4 @@
-#			Factorial of a number
+#			Bubble Sort Algorithm
 #
 #		Allen Hichard and João Paulo
 #
@@ -6,15 +6,20 @@
 #
 # 
 # main() {
-#	 int number = read_value_0;
-#	 int resp = factorial(number)
-# }
+#	 int vector[10] = read_vector
+#	 int i = 0; j = 0;
 #
-# int factorial(int number) {
-#	 if (number <= 0)
-#		 return 1;
-#
-#	 return number * factorial(number - 1);
+#	 while (i < 10) {
+#		 while (j < 10) {
+#			 if(vector[j] > vector[i]) {
+#				 int temp = vector[j];
+#				 vector[j] = vector[i];
+#				 vector[i] = temp;
+#			 }
+#			 j++;
+#		 }
+#		 i++
+#	 }
 # }
 
 .macro push reg #macro for inserting things into the stack
@@ -28,6 +33,7 @@
 .endm
 
 .data
+	vector: .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 #vector values
 .equ serial, 0x860 #address of UART0
 
 .global main
@@ -38,7 +44,8 @@ main:
 read_values:
 	movia r8, serial #r8 as the UART0 pointer
 	movi r9, 0 #r9 as the input acumulator
-	movi r13, 1 #number of inputs to read
+	movi r13, 10 #number of inputs to read
+	movia r14, vector #pointer to the vector
 
 input_loop:
 	#checking if there is anything on the input
@@ -71,32 +78,33 @@ end_if_backspace:
 	br input_loop #restarts for reading a new number
 
 end_input_loop:
-	push r9 #pushes the read number into the stack
+	stw r9, 0(r14) #stores the value read into the vector
+	addi r14, r14, 4 #goes to the next position
 	mov r9, r0 #resets the acumulator
 	subi r13, r13, 1 #subtracs 1 from number of inputs left
 	bne r13, r0, input_loop #if there are more numbers to input repeats, otherwise start program
 
 #Here it is where the exponetial code starts
 start:
-	pop r4 #r4 as number, that is going to be sent as parameter to the function factorial
-	call factorial
-	#r1 contains the final result
-	br end
+	movia r8, vector #r8 will point to the vector last position of the vector
+	addi r8, r8, 40
 
-factorial:
-if_less_equal_zero:
-	bgt r4, r0,  else_less_equal_zero #This means: if (number > 0) go to the else label. if (number <= 0), execute the if code
-	movi r1, 1 #places 1 into the return register
-	ret #returns to the caller
-else_less_equal_zero: #if number is greater than 0
-	push ra #saves ra into the stack
-	push r4 #saves number into the stack
+	movia r9, vector #r9 will start pointing to the first element to the vector
+while_i:
+	movia r10, vector #r10 will also be a pointer to the vector
+while_j:
+	ldw r11, 0(r10) #gets the number on the i(th) position of the vector
+	ldw r12, 0(r9) #gets the number on the j(th) position of the vector
 	
-	subi r4, r4, 1 #subtracts 1 from the number and sends it as a parameter for factorial
-	call factorial #calls the procedure
-	pop r4 #restore the state of the number
-	pop ra #restores ra
-	mul r1, r4, r1 #multiplies the parameter(number) with the return of the previous factorial call, and saves the result into the return register
-	ret #returns to the callor
-
-end:
+if_comp: 
+	cmplt r13, r11, r12 #compares thhe values to know who is the greater
+	bne r13, r0, end_if_comp #if the i(th) is not greater than the j(th), no need to swap
+	stw r11, 0(r9) #but we swap if the i(th) is greater than the j(th)
+	stw r12, 0(r10)
+end_if_comp:
+	addi r10, r10, 4 #moves the j pointer to the next position
+	bne r10, r8, while_j #if j does not point to the last element, repeat the while_j
+end_while_j:
+	addi r9, r9, 4 #moves the i pointer to the next element
+	bne r9, r8, while_i #if i is not in the last position, repeat the while_i
+end_while_i:
