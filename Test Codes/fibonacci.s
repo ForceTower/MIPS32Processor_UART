@@ -1,26 +1,14 @@
-#			Bubble Sort Algorithm
+#			Fibonacci Sequence
 #
-#		Allen Hichard and João Paulo
+#		Allen Hichard and Joï¿½o Paulo
 #
 #				Code in C
 #
 # 
 # main() {
-#	 int vector[10] = read_vector
-#	 int i = 0; j = 0;
-#
-#	 while (i < 10) {
-#		 while (j < 10) {
-#			 if(vector[j] > vector[i]) {
-#				 int temp = vector[j];
-#				 vector[j] = vector[i];
-#				 vector[i] = temp;
-#			 }
-#			 j++;
-#		 }
-#		 i++
-#	 }
+#	 int number = read_value_0;
 # }
+#
 
 .macro push reg #macro for inserting things into the stack
 	subi sp, sp, 4
@@ -33,7 +21,7 @@
 .endm
 
 .data
-	vector: .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 #vector values
+	values: .word 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 #Fibonacci Sequence will be stored here
 .equ serial, 0x860 #address of UART0
 
 .global main
@@ -44,8 +32,7 @@ main:
 read_values:
 	movia r8, serial #r8 as the UART0 pointer
 	movi r9, 0 #r9 as the input acumulator
-	movi r13, 10 #number of inputs to read
-	movia r14, vector #pointer to the vector
+	movi r13, 1 #number of inputs to read
 
 input_loop:
 	#checking if there is anything on the input
@@ -78,33 +65,44 @@ end_if_backspace:
 	br input_loop #restarts for reading a new number
 
 end_input_loop:
-	stw r9, 0(r14) #stores the value read into the vector
-	addi r14, r14, 4 #goes to the next position
+	push r9 #pushes the read number into the stack
 	mov r9, r0 #resets the acumulator
 	subi r13, r13, 1 #subtracs 1 from number of inputs left
 	bne r13, r0, input_loop #if there are more numbers to input repeats, otherwise start program
 
-#Here it is where the bubble sort code starts
+#Here it is where the fibonacci sequence code starts
 start:
-	movia r8, vector #r8 will point to the vector last position of the vector
-	addi r8, r8, 40
+	movia r8, values #pointer to the result vector
+	movi r9, 0 #counter of current Fibonacci to be calculated
+	pop r10 #recover from stack the quantity of numbers we should generate
+while_fill_values: #while for filling numbers
+	addi r9, r9, 1 #current_number++;
+	push r9 #push the r9 into the stack because this function receives its parameters using the stack
+	movi r2, 0 #resets the value of the global variable result
+	call fibonacci #calls the function
 
-	movia r9, vector #r9 will start pointing to the first element to the vector
-while_i:
-	movia r10, vector #r10 will also be a pointer to the vector
-while_j:
-	ldw r11, 0(r10) #gets the number on the i(th) position of the vector
-	ldw r12, 0(r9) #gets the number on the j(th) position of the vector
-	
-if_comp: 
-	cmplt r13, r11, r12 #compares thhe values to know who is the greater
-	bne r13, r0, end_if_comp #if the i(th) is not greater than the j(th), no need to swap
-	stw r11, 0(r9) #but we swap if the i(th) is greater than the j(th)
-	stw r12, 0(r10)
-end_if_comp:
-	addi r10, r10, 4 #moves the j pointer to the next position
-	bne r10, r8, while_j #if j does not point to the last element, repeat the while_j
-end_while_j:
-	addi r9, r9, 4 #moves the i pointer to the next element
-	bne r9, r8, while_i #if i is not in the last position, repeat the while_i
-end_while_i:
+	stw r2, 0(r8) #stores the result in the vector
+	addi r8, r8, 4 #moves the vector to the next position
+	bne r10, r9, while_fill_values #if we didn't generate all the values, repeat
+end_while_fill_values:
+	br end #go to the end on file
+
+fibonacci:
+	pop r16 #receives the parameter
+
+	cmplei r17, r16, 1 #checks if the value is lower or equals to 1
+	beq r17, r0, else #if not go to else
+	add r2, r2, r16 #if it is, add it's value to the result
+	ret #returns to caller
+else:
+	push ra #push ra so we know where to go back
+	subi r17, r16, 1 #sets up n-1
+	push r17 #push n-1
+	subi r17, r16, 2 #sets up n-2
+	push r17 #push n-2
+	call fibonacci #call fibonacci with n-2 as parameter
+	call fibonacci #call fibonacci with n-1 as parameter
+	pop ra #recover the ra 
+	ret #return to caller (ra)
+
+end:
