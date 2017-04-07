@@ -1,14 +1,33 @@
 #			Fibonacci Sequence
 #
-#		Allen Hichard and Joï¿½o Paulo
+#		Allen Hichard and João Paulo
 #
 #				Code in C
 #
-# 
+# int result = 0; 
+#
 # main() {
 #	 int number = read_value_0;
+#	 int counter = 0, i = 0;
+#	 int values[15];
+#	 
+#	 do {
+#		 counter++;
+#		 result = 0;
+#		 fibonacci(counter);
+#		 values[i] = result;
+#		 i++;
+#	 } while (number > counter);
 # }
 #
+# fibonacci(int number) {
+#	 if (number <= 1)
+#		 result = result + number;
+#	 else {
+#		 fibonacci(number - 2);
+#		 fibonacci(number - 1);
+#	 }
+# }
 
 .macro push reg #macro for inserting things into the stack
 	subi sp, sp, 4
@@ -83,7 +102,7 @@ while_fill_values: #while for filling numbers
 
 	stw r2, 0(r8) #stores the result in the vector
 	addi r8, r8, 4 #moves the vector to the next position
-	bne r10, r9, while_fill_values #if we didn't generate all the values, repeat
+	bgt r10, r9, while_fill_values #if we didn't generate all the values, repeat
 end_while_fill_values:
 	br end #go to the end on file
 
