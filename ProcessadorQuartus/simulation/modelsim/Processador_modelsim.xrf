@@ -1,0 +1,7 @@
+vendor_name = ModelSim
+source_file = 1, C:/Outros/MI-SD/TEC499-Sistemas-Digitais/ProcessadorQuartus/Processador.v
+source_file = 1, C:/Outros/MI-SD/TEC499-Sistemas-Digitais/ProcessadorQuartus/InstructionFetch.v
+source_file = 1, C:/Outros/MI-SD/TEC499-Sistemas-Digitais/ProcessadorQuartus/MemoriaDeInstrucoes.v
+source_file = 1, C:/Outros/MI-SD/TEC499-Sistemas-Digitais/ProcessadorQuartus/db/Processador.cbx.xml
+design_name = Processador
+instance = comp, \clock~input , clock~input, Processador, 1
