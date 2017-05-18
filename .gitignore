@@ -1,0 +1,5 @@
+ProcessadorQuartus/output_files
+ProcessadorQuartus/db
+ProcessadorQuartus/incremental_db
+ProcessadorQuartus/simulation
+ProcessadorQuartus/*.bak

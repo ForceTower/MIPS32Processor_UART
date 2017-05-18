@@ -1,3 +1,0 @@
-module MemoriaDeInstrucoes(input wire clock, input wire[31:0] endereco, output wire[31:0] instrucao);
-
-endmodule 

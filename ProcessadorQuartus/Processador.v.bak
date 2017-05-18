@@ -1,3 +1,0 @@
-module Processador(input wire clock);
-
-endmodule 
