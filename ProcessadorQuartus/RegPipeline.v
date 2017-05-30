@@ -12,7 +12,7 @@ module RegPipeline(input clock, parada, limpar,
 	
 	always @ ( posedge clock ) begin // na borda ascendente
 		if (limpar) // limpa
-			out <= {N{1'b0}};
+			out <= {TAM{1'b0}};
 		else if (parada) //mantem
 			out <= out;
 		else //atribui
