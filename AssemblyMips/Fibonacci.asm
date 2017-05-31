@@ -4,7 +4,7 @@
 
 # int fib(int n): return n < 2 ? n : fib(n-1) + fib(n-2)
 
-main:	li  $a0, 7				# N = 10
+main:	li  	$a0, 7				# N = 10
 	jal 	fib
 	j	exit
 
