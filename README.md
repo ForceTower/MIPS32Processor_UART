@@ -3,4 +3,4 @@ MI - Sistemas de Digitais
 
 PBL-SD Repository
 
-Students: Allen Hichard and João Paulo Sena
+Students: Allen Hichard, João Paulo Sena, Alberto Junior and Icaro Vasconcelos
