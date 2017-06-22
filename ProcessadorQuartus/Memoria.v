@@ -6,7 +6,7 @@ module Memoria (
 	reg [31:0] memoria [0:63];
 	
 	initial begin
-		$readmemb("arquivo.txt", memoria);
+		$readmemb("c:/arquivo.txt", memoria);
 	end
 	
 	assign instrucao = memoria[pc[7:2]][31:0];

@@ -1,7 +1,19 @@
-module Processador(input clock, output wire[31:0] t_pc, t_inst);
+module Processador(input clock,
+						 output wire[31:0] t_pc, t_inst, t_alu_a, t_alu_b, t_wb_data, t_mem_write_data, t_alu_rst,
+						 output wire[4:0] t_wb_reg, t_rs, t_rt, t_rd,
+						 output wire t_fonte_pc, t_limpar, t_parada);
 	// ---------------------------------------------
 	//				FASE 1 - Instruction Fetch
 	// ---------------------------------------------
+	reg limpar;
+	always @ ( * ) begin
+		limpar <= 0;
+		if (fonte_pc)
+			limpar <= 1;
+	end
+
+	assign t_fonte_pc = fonte_pc;
+	assign t_limpar = limpar;
 
 	reg [31:0] pc; // registrador PC
 
@@ -13,17 +25,22 @@ module Processador(input clock, output wire[31:0] t_pc, t_inst);
 	assign pc4 = pc + 4; //Coloca o valor PC + 4 no fio
 
 	always @(negedge clock) begin //A cada borda de descida, atualiza o PC
-		pc <= pc4; //Por padrao, PC = PC + 4
+		if (parada)
+			pc <= pc;
+		else if (fonte_pc)
+			pc <= endereco_salto;
+		else
+			pc <= pc4; //Por padrao, PC = PC + 4
 	end
 
-	wire [31:0] instrucao; // cria o fio que irá guardar a instrucao
+	wire [31:0] instrucao; // cria o fio que irÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ guardar a instrucao
 	Memoria memoria (.pc(pc), .instrucao(instrucao)); //Busca a instrucao na memoria
 
 	wire[31:0] pc_2, instrucao_2; //Cria 2 fios para passar para proxima fase
-	RegPipeline #(.TAM(32)) if_id_pc (.clock(clock), .parada(1'b0), .limpar(1'b0), .in(pc), .out(pc_2)); //Esse registrador deve ser parado em caso de bolha e limpo em caso de branch
-	RegPipeline #(.TAM(32)) if_id_inst (.clock(clock), .parada(1'b0), .limpar(1'b0), .in(instrucao), .out(instrucao_2)); //Esse registrador deve ser parado em caso de bolha e limpo em caso de branch
+	RegPipeline #(.TAM(32)) if_id_pc (.clock(clock), .parada(parada), .limpar(limpar), .in(pc), .out(pc_2)); //Esse registrador deve ser parado em caso de bolha e limpo em caso de branch
+	RegPipeline #(.TAM(32)) if_id_inst (.clock(clock), .parada(parada), .limpar(limpar), .in(instrucao), .out(instrucao_2)); //Esse registrador deve ser parado em caso de bolha e limpo em caso de branch
 
-	assign t_pc = pc_2;
+	assign t_pc = pc;
 	assign t_inst = instrucao_2;
 
 	// ---------------------------------------------------
@@ -54,7 +71,13 @@ module Processador(input clock, output wire[31:0] t_pc, t_inst);
 	wire [31:0] branch_end;
 	assign branch_end = pc_2 + {se_imediato[29:0], 2'b00}; //Calculo do endereco de desvio
 
-	wire [31:0] out_rs, out_rt; //Fios para guardar os valores dos registradores que estão em RS e RT
+	wire [31:0] out_rs, out_rt; //Fios para guardar os valores dos registradores que estÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o em RS e RT
+
+	assign t_rs = (rs);
+	assign t_rt = (rt);
+	assign t_rd = (rd);
+
+
 
   //Banco de Registradores, toma como entrada os registradores que serao lidos e o que e escrito na fase WB
 	BancoDeRegistradores registradores(.rs(rs), .rt(rt), .out_rs(out_rs), .out_rt(out_rt), .sinal_escrita(c_escrever_reg_5), .reg_escrita(reg_escrita_5), .dado_escrita(dado_escrita_5)); //Busca os valores nos registradores
@@ -62,7 +85,7 @@ module Processador(input clock, output wire[31:0] t_pc, t_inst);
 	wire [31:0] dado_rs_3, dado_rt_3, se_imediato_3;
 	RegPipeline #(.TAM(96)) id_ex_dados_reg (.clock(clock), .parada(parada), .limpar(limpar),
 																					.in({out_rs, out_rt, se_imediato}),
-																					.out({dado_rs, dado_rt, se_imediato_3}));
+																					.out({dado_rs_3, dado_rt_3, se_imediato_3}));
 
   wire [5:0] funct_3;
   RegPipeline #(.TAM(6)) id_ex_funct (.clock(clock), .parada(parada), .limpar(limpar), .in(funct), .out(funct_3));
@@ -120,7 +143,7 @@ module Processador(input clock, output wire[31:0] t_pc, t_inst);
   wire[1:0] c_memoria_4;
 	wire c_memtoreg_4;
 	wire c_escrever_reg_4;
-	RegPipeline #(.TAM(4)) ex_me_micro_sinais(.clock(clock), .parada(1'b0), .limpar(limpar), //Passa adiante os microsinais que nao serão usados nesta fase
+	RegPipeline #(.TAM(4)) ex_me_micro_sinais(.clock(clock), .parada(1'b0), .limpar(limpar), //Passa adiante os microsinais que nao serÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â£o usados nesta fase
 																					.in({c_memoria_3, c_memtoreg_3, c_escrever_reg_3}),
 																					.out({c_memoria_4, c_memtoreg_4, c_escrever_reg_4}));
 
@@ -143,6 +166,10 @@ module Processador(input clock, output wire[31:0] t_pc, t_inst);
 	wire zero, overflow;
 
 	ALU alu (.sinalOperacao(operacao), .rs(dado1_antecipado), .rt(segundo_operando), .resultado(resultado_ula), .overflow(overflow), .zero(zero));
+
+	assign t_alu_a = dado1_antecipado;
+	assign t_alu_b = segundo_operando;
+	assign t_alu_rst = resultado_ula;
 
 	wire zero_4;
 	wire overflow_4;
@@ -194,18 +221,26 @@ module Processador(input clock, output wire[31:0] t_pc, t_inst);
 
 	wire [31:0] dado_lido_memoria;
 	MemoriaDeDados memoria_dados(.clock(clock), .sinal_ler(c_memoria_4[0]), .sinal_escrever(c_memoria_4[1]), .endereco(resultado_ula_4[8:2]), .dado_ler(dado_lido_memoria), .dado_escrever(dado_rt_4));
+	assign t_mem_write_data = dado_rt_4;
 
 	wire[31:0] resultado_ula_5, dado_memoria_5;
 	RegPipeline #(.TAM(64)) me_wb_dados(.clock(clock), .parada(1'b0), .limpar(1'b0),
 																			.in({resultado_ula_4, dado_lido_memoria}),
 																			.out({resultado_ula_5, dado_memoria_5}));
 
+	//TODO alterar o endereco_salto aqui
+	wire[31:0] endereco_salto;
+	assign endereco_salto = branch_end_4;
+
 	reg fonte_pc;
 	always @ ( * ) begin
     case (c_desvio_4)
       3'b001: fonte_pc <= zero_4; //caso seja desvio em iguais...
       3'b010: fonte_pc <= ~(zero_4); //caso seja desvio em diferentes...
-      default: fonte_pc <= 0;
+			3'b011: fonte_pc <= 1'b1; //Jump incondicional
+			3'b100: fonte_pc <= 1'b1; //Jump and link
+			3'b101: fonte_pc <= 1'b1; //Jump resgister
+      default: fonte_pc <= 1'b0;
     endcase
   end
 
@@ -215,10 +250,39 @@ module Processador(input clock, output wire[31:0] t_pc, t_inst);
 
 	wire[31:0] dado_escrita_5;
 	assign dado_escrita_5 = (c_memtoreg_5) ? dado_memoria_5 : resultado_ula_5;
-	
-	
-	
-	reg [1:0] antecipar_a, antecipar_b;
+
+	assign t_wb_reg = reg_escrita_5;
+	assign t_wb_data = dado_escrita_5;
+
+	reg [1:0] antecipar_a, antecipar_b; //
+	always @ ( * ) begin
+		if (c_escrever_reg_4 && (reg_escrita_4 == rs_3))
+			antecipar_a <= 2'b01; // fase 4
+		else if (c_escrever_reg_5 && (reg_escrita_5 == rs_3))
+			antecipar_a <= 2'b10; //fase 5
+		else
+			antecipar_a <= 2'b00; //nenhuma
+
+
+		if (c_escrever_reg_4 && (reg_escrita_4 == rt_3))
+			antecipar_b <= 2'b01;
+		else if (c_escrever_reg_5 && (reg_escrita_5 == rt_3))
+			antecipar_b <= 2'b10;
+		else
+			antecipar_b <= 2'b00;
+	end
+
+	//Foward unidade_antecipacao(.clock(clock), .reg_f4(c_escrever_reg_4), .reg_f5(c_escrever_reg_5), .escrita_f4(reg_escrita_4), .escrita_f5(reg_escrita_5), .RS_f3(rs_3), .RT_f3(rt_3), .fw_A(antecipar_a), .fw_B(antecipar_b));
+
+	reg parada;
+  always @ ( * ) begin
+    if (c_memtoreg_3 && ((rt == rt_3) || (rs == rt_3)))
+      parada <= 1'b1;
+    else
+      parada <= 1'b0;
+  end
+
+	assign t_parada = parada;
 
 
 endmodule

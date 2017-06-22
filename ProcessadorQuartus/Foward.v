@@ -1,12 +1,12 @@
-//TAKS Alberto Junior 
+//TAKS Alberto Junior
 // 1b	-> escrever registrador (fase 4)
 // 1b	-> escrever registrador (fase 5)
 // 5b	-> numero do registrador de escrita (fase 4)
 // 5b	-> numero do registrador de escrita (fase 5)
 // 5b	-> registrador RS (fase 3)
-// 5b	-> registrador RT (fase 3)                        
+// 5b	-> registrador RT (fase 3)
 // @Alberto Junior {
-//	Sua saida eh simples, devo antecipar A? se sim, de qual estagio? 
+//	Sua saida eh simples, devo antecipar A? se sim, de qual estagio?
 // Devo antecipar B? se sim, de qual estagio? }
 
 //NAO ATENCIPAR: A = [00], B = [00]
@@ -24,7 +24,7 @@ module Foward (
 	);
 
 	reg [1:0] A, B;
-	always @ (posedge clock) begin
+	always @ ( * ) begin //Isso eh um circuito combinacional. nao depende do clock
 		//FOWARD da fase 3 EX/MEM
 		//quero escrever e não eh no XZR
 		if(reg_f4 && escrita_f4 != 5'b0) begin
@@ -42,17 +42,17 @@ module Foward (
 			if(escrita_f5 == RS_f3)
 				A <= 2'b01; //A = 01
 			//meu registrador de destino eh igual ao RT da fase 3?
-			if(escrita_f5 == RT_f3) 
+			if(escrita_f5 == RT_f3)
 				B <= 2'b01; //B = 01
 		end
 		//se nao antecipar os dados de algum estagio
-		else begin 
+		else begin
 			A <= 2'b0; //A = 00
 			B <= 2'b0; //B = 00
 		end
 	end
-	
+
 	assign fw_A = A;
 	assign fw_B = B;
-	
+
 endmodule
