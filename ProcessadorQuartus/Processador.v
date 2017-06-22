@@ -187,5 +187,34 @@ module Processador(input clock, output wire[31:0] t_pc, t_inst);
 	// -------------------------------------------------
 	// 										Fase 4
 	// -------------------------------------------------
+	wire c_memtoreg_5, c_escrever_reg_5;
+	RegPipeline #(.TAM(2)) me_wb microsinais(.clock(clock), .parada(1'b0), .limpar(1'b0), .in({c_memtoreg_4, c_escrever_reg_4}), .out({c_memtoreg_5, c_escrever_reg_5}));
+	wire[4:0] reg_escrita_5;
+	RegPipeline #(.TAM(5)) me_wb_registrador(.clock(clock), .parada(1'b0), .limpar(1'b0), .in(reg_escrita_4), .out(reg_escrita_5));
+
+	wire [31:0] dado_lido_memoria;
+	MemoriaDeDados memoria_dados(.clock(clock), .sinal_ler(c_memoria_4[0]), .sinal_escrever(c_memoria_4[1]), .endereco(resultado_ula_4[8:2]), .dado_ler(dado_lido_memoria), .dado_escrever(dado_rt_4));
+
+	wire[31:0] resultado_ula_5, dado_memoria_5;
+	RegPipeline #(.TAM(64)) me_wb_dados(.clock(clock), .parada(1'b0), .limpar(1'b0),
+																			.in({resultado_ula_4, dado_lido_memoria}),
+																			.out({resultado_ula_5, dado_memoria_5}));
+
+	reg fonte_pc;
+	always @ ( * ) begin
+    case (c_desvio_4)
+      3'b001: fonte_pc <= zero_4; //caso seja desvio em iguais...
+      3'b010: fonte_pc <= ~(zero_4); //caso seja desvio em diferentes...
+      default: fonte_pc <= 0;
+    endcase
+  end
+
+	// -------------------------------------------------------
+	//            Fase 5
+	// -------------------------------------------------------
+
+	wire[31:0] dado_escrita_5;
+	 assign dado_escrita_5 = (c_memtoreg_5) ? dado_memoria_5 : resultado_ula_5;
+
 
 endmodule
