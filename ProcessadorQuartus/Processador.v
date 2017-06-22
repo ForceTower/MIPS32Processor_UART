@@ -1,7 +1,8 @@
 module Processador(input clock,
 						 output wire[31:0] t_pc, t_inst, t_alu_a, t_alu_b, t_wb_data, t_mem_write_data, t_alu_rst,
 						 output wire[4:0] t_wb_reg, t_rs, t_rt, t_rd,
-						 output wire t_fonte_pc, t_limpar, t_parada);
+						 output wire t_fonte_pc, t_limpar, t_parada,
+						 output wire[2:0] t_antecipar_a, t_antecipar_b);
 	// ---------------------------------------------
 	//				FASE 1 - Instruction Fetch
 	// ---------------------------------------------
@@ -271,6 +272,9 @@ module Processador(input clock,
 		else
 			antecipar_b <= 2'b00;
 	end
+
+	assign t_antecipar_a = antecipar_a;
+	assign t_antecipar_b = antecipar_b;
 
 	//Foward unidade_antecipacao(.clock(clock), .reg_f4(c_escrever_reg_4), .reg_f5(c_escrever_reg_5), .escrita_f4(reg_escrita_4), .escrita_f5(reg_escrita_5), .RS_f3(rs_3), .RT_f3(rt_3), .fw_A(antecipar_a), .fw_B(antecipar_b));
 

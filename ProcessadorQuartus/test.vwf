@@ -2622,6 +2622,86 @@ SIGNAL("t_limpar")
 	PARENT = "";
 }
 
+SIGNAL("t_antecipar_a")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = BUS;
+	WIDTH = 3;
+	LSB_INDEX = 0;
+	DIRECTION = OUTPUT;
+	PARENT = "";
+}
+
+SIGNAL("t_antecipar_a[2]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = OUTPUT;
+	PARENT = "t_antecipar_a";
+}
+
+SIGNAL("t_antecipar_a[1]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = OUTPUT;
+	PARENT = "t_antecipar_a";
+}
+
+SIGNAL("t_antecipar_a[0]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = OUTPUT;
+	PARENT = "t_antecipar_a";
+}
+
+SIGNAL("t_antecipar_b")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = BUS;
+	WIDTH = 3;
+	LSB_INDEX = 0;
+	DIRECTION = OUTPUT;
+	PARENT = "";
+}
+
+SIGNAL("t_antecipar_b[2]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = OUTPUT;
+	PARENT = "t_antecipar_b";
+}
+
+SIGNAL("t_antecipar_b[1]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = OUTPUT;
+	PARENT = "t_antecipar_b";
+}
+
+SIGNAL("t_antecipar_b[0]")
+{
+	VALUE_TYPE = NINE_LEVEL_BIT;
+	SIGNAL_TYPE = SINGLE_BIT;
+	WIDTH = 1;
+	LSB_INDEX = -1;
+	DIRECTION = OUTPUT;
+	PARENT = "t_antecipar_b";
+}
+
 TRANSITION_LIST("t_inst[31]")
 {
 	NODE
@@ -4851,6 +4931,60 @@ TRANSITION_LIST("t_parada")
 }
 
 TRANSITION_LIST("t_limpar")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL X FOR 1000.0;
+	}
+}
+
+TRANSITION_LIST("t_antecipar_a[2]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL X FOR 1000.0;
+	}
+}
+
+TRANSITION_LIST("t_antecipar_a[1]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL X FOR 1000.0;
+	}
+}
+
+TRANSITION_LIST("t_antecipar_a[0]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL X FOR 1000.0;
+	}
+}
+
+TRANSITION_LIST("t_antecipar_b[2]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL X FOR 1000.0;
+	}
+}
+
+TRANSITION_LIST("t_antecipar_b[1]")
+{
+	NODE
+	{
+		REPEAT = 1;
+		LEVEL X FOR 1000.0;
+	}
+}
+
+TRANSITION_LIST("t_antecipar_b[0]")
 {
 	NODE
 	{
@@ -7443,6 +7577,86 @@ DISPLAY_LINE
 	RADIX = Binary;
 	TREE_INDEX = 258;
 	TREE_LEVEL = 0;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "t_antecipar_a";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Unsigned;
+	TREE_INDEX = 259;
+	TREE_LEVEL = 0;
+	CHILDREN = 260, 261, 262;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "t_antecipar_a[2]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Unsigned;
+	TREE_INDEX = 260;
+	TREE_LEVEL = 1;
+	PARENT = 259;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "t_antecipar_a[1]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Unsigned;
+	TREE_INDEX = 261;
+	TREE_LEVEL = 1;
+	PARENT = 259;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "t_antecipar_a[0]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Unsigned;
+	TREE_INDEX = 262;
+	TREE_LEVEL = 1;
+	PARENT = 259;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "t_antecipar_b";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Unsigned;
+	TREE_INDEX = 263;
+	TREE_LEVEL = 0;
+	CHILDREN = 264, 265, 266;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "t_antecipar_b[2]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Unsigned;
+	TREE_INDEX = 264;
+	TREE_LEVEL = 1;
+	PARENT = 263;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "t_antecipar_b[1]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Unsigned;
+	TREE_INDEX = 265;
+	TREE_LEVEL = 1;
+	PARENT = 263;
+}
+
+DISPLAY_LINE
+{
+	CHANNEL = "t_antecipar_b[0]";
+	EXPAND_STATUS = COLLAPSED;
+	RADIX = Unsigned;
+	TREE_INDEX = 266;
+	TREE_LEVEL = 1;
+	PARENT = 263;
 }
 
 TIME_BAR
