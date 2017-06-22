@@ -49,7 +49,7 @@ module Processador(input clock, output wire[31:0] t_pc, t_inst);
 	assign se_imediato = {{16{imediato[15]}}, imediato[15:0]};	// extensor de sinal imediato
 
 	wire [31:0] jump_end;         //Endereco de salto que sera usado na fase 4
-	assign jump_end = {pc[31:28], instr_2[25:0], 2'b00};
+	assign jump_end = {pc_2[31:28], instrucao_2[25:0], 2'b00};
 
 	wire [31:0] branch_end;
 	assign branch_end = pc_2 + {se_imediato[29:0], 2'b00}; //Calculo do endereco de desvio
@@ -70,7 +70,7 @@ module Processador(input clock, output wire[31:0] t_pc, t_inst);
   wire [4:0] rt_3, rd_3;
 	RegPipeline #(.TAM(10)) id_ex_registradores (.clock(clock), .parada(parada), .limpar(limpar),
 																					.in({rt, rd}),
-																					.out{rt_3, rd_3});
+																					.out({rt_3, rd_3}));
 
 	wire [4:0] rs_3; //Envia RS para a proxima fase
 	RegPipeline #(.TAM(5)) id_ex_registrador_rs(.clock(clock), .parada(parada), .limpar(1'b0), //Esse registrador nao e afetado pelo clear ja que o rs pode ser usado para antecipacao
@@ -125,7 +125,7 @@ module Processador(input clock, output wire[31:0] t_pc, t_inst);
 																					.out({c_memoria_4, c_memtoreg_4, c_escrever_reg_4}));
 
 	wire [31:0] segundo_operando;
-	assign segundo_operando = (fonte_ula_3) ? se_imediato_3 : dado2_antecipado; //O Segundo operando da ULA pode ser proveniente de um registrador ou de um imediato
+	assign segundo_operando = (c_fonte_ula_3) ? se_imediato_3 : dado2_antecipado; //O Segundo operando da ULA pode ser proveniente de um registrador ou de um imediato
 
   wire [2:0] operacao;
 	controleALU controle_alu (.funct(funct_3), .opALU(c_ALUOp_3), .sinalOperacao(operacao)); //Obtem o sinal da operacao da ALU baseado no funct + AluOP
@@ -188,7 +188,7 @@ module Processador(input clock, output wire[31:0] t_pc, t_inst);
 	// 										Fase 4
 	// -------------------------------------------------
 	wire c_memtoreg_5, c_escrever_reg_5;
-	RegPipeline #(.TAM(2)) me_wb microsinais(.clock(clock), .parada(1'b0), .limpar(1'b0), .in({c_memtoreg_4, c_escrever_reg_4}), .out({c_memtoreg_5, c_escrever_reg_5}));
+	RegPipeline #(.TAM(2)) me_wb_microsinais(.clock(clock), .parada(1'b0), .limpar(1'b0), .in({c_memtoreg_4, c_escrever_reg_4}), .out({c_memtoreg_5, c_escrever_reg_5}) );
 	wire[4:0] reg_escrita_5;
 	RegPipeline #(.TAM(5)) me_wb_registrador(.clock(clock), .parada(1'b0), .limpar(1'b0), .in(reg_escrita_4), .out(reg_escrita_5));
 
@@ -214,7 +214,11 @@ module Processador(input clock, output wire[31:0] t_pc, t_inst);
 	// -------------------------------------------------------
 
 	wire[31:0] dado_escrita_5;
-	 assign dado_escrita_5 = (c_memtoreg_5) ? dado_memoria_5 : resultado_ula_5;
+	assign dado_escrita_5 = (c_memtoreg_5) ? dado_memoria_5 : resultado_ula_5;
+	
+	
+	
+	reg [1:0] antecipar_a, antecipar_b;
 
 
 endmodule
