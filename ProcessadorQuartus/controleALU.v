@@ -1,6 +1,6 @@
 module controleALU(	input[5:0] funct, input[1:0] opALU, output[2:0] sinalOperacao);
 
-/* opCode da Instrução | OpAlu | Operação    | Campo Funct | Ação da ALU | Entrada do Controle  
+/* opCode da Instrução | OpAlu | Operação    | Campo Funct | Ação da ALU | Entrada do Controle
 	Tipo R 				  |   10  | and         |   100100	  |	  and	    |			000 -
 	Tipo R 				  |   10  | or          |   100101	  |	  or	    |			001 -
 	LW						  |   00  | load Word   |   xxxxxx 	  |     add     |       010 -
@@ -13,9 +13,9 @@ module controleALU(	input[5:0] funct, input[1:0] opALU, output[2:0] sinalOperaca
 	Tipo R 				  |   10  | sub         |   100010	  |	  sub	    |			110 -
 	Tipo R 				  |   10  | slt         |   101010	  |	  slt	    |			111
  */
- 
 
- 
+
+
 	reg [2:0] microSinal;
 	always @ ( * ) begin
 		if (funct == 6'b100100 && opALU == 2'b10)
@@ -33,6 +33,6 @@ module controleALU(	input[5:0] funct, input[1:0] opALU, output[2:0] sinalOperaca
 		else if (funct == 6'b101010 && opALU == 2'b10)
 			microSinal <=3'b111;
 	end
-	
+
 	assign sinalOperacao = microSinal;
 endmodule

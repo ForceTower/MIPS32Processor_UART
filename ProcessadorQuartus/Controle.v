@@ -1,15 +1,18 @@
 module Controle(input wire [5:0] opcode,    //O Opcode
+                input wire [5:0] funct,
                 output reg [1:0] c_ALUOp,   //10 - Tipo R // 01 - Desvio // 00 - Imediato // Qual tipo de operacao a ALU deve fazer?
                 output reg c_fonte_ula,     //1 - Usar imediato ou 0 - Registrador?
                 output reg [2:0] c_desvio,  //000 - (sem desvio) / 001 - beq / 010 - bne / 011 - j / 100 - jal / 101 - jr (jr depende do funct [se funct == 001000 eh um jr])
                 output reg [1:0] c_memoria, //00 - Nao ler nem escrever // 01 - Ler memoria // 10 - Escrever memoria
                 output reg c_memtoreg,      //1 - Instrucao Load // 0 - Não é Instrucao Load
                 output reg c_escrever_reg,  //1 - Instrucao ira escrever no registrador // 0 - Instrucao nao ira escrever no registrador
-                output reg c_reg_destino    //1 - escrever em rd // 0 - escrever em rt {Geralmente RT em casos de operacoes com imediatos}
+                output reg c_reg_destino,    //1 - escrever em rd // 0 - escrever em rt {Geralmente RT em casos de operacoes com imediatos}
+                output reg c_jal
 );
 
 
     always @ ( * ) begin
+        c_jal <= 1'b0;
         case (opcode)
             6'b000000: begin            //Caso seja do tipo R     [Exemplo: add $t0, $t1, $t2]
                 c_ALUOp <= 2'b10;       //Operacao tipo R
@@ -19,6 +22,22 @@ module Controle(input wire [5:0] opcode,    //O Opcode
                 c_memtoreg <= 1'b0;     //Nao e uma instrucao de load
                 c_escrever_reg <= 1'b1; //Ira escrever no registrador
                 c_reg_destino <= 1'b1;  //O registrador que sera escrito e o RD
+
+                if (funct == 6'b001000) begin //Eh uma instrucao JR
+                  c_ALUOp <= 2'b01;
+                  c_desvio <= 3'b101;
+                  c_escrever_reg <= 1'b0;
+                end
+            end
+
+            6'b011100: begin //Mul
+              c_ALUOp <= 2'b10;       //Operacao tipo R
+              c_fonte_ula <= 1'b0;    //Usar valor do registrador
+              c_desvio <= 3'b000;     //Nao e uma instrucao de desvio
+              c_memoria <= 2'b00;     //Nao ocorrera nenhum tipo de acesso a memoria
+              c_memtoreg <= 1'b0;     //Nao e uma instrucao de load
+              c_escrever_reg <= 1'b1; //Ira escrever no registrador
+              c_reg_destino <= 1'b1;  //O registrador que sera escrito e o RD
             end
 
             6'b101011: begin            //Caso seja uma operacao de Store (SW)     [Exemplo: sw $t1, 8($t2)]
@@ -74,7 +93,7 @@ module Controle(input wire [5:0] opcode,    //O Opcode
             6'b000010: begin            //Caso seja um J (Jump - Salto incondicional)          [Exemplo j 40]
                 c_ALUOp <= 2'b01;       //Nao aplicado nesta operacao
                 c_fonte_ula <= 1'b0;    //Nao aplicado a esta operacao
-                c_desvio <= 3'b011;     //Instrucao de Desvio se Diferente
+                c_desvio <= 3'b011;     //Instrucao de Desvio incondicional
                 c_memoria <= 2'b00;     //Nao havera acesso a memoria
                 c_memtoreg <= 1'b0;     //Nao eh um load
                 c_escrever_reg <= 1'b0; //Nao vamos escrever em registradores
@@ -84,11 +103,12 @@ module Controle(input wire [5:0] opcode,    //O Opcode
             6'b000011: begin            //Caso seja um JAL (Jump and Link - Salto incondicional e Salvar PC em registrador de retorno)          [Exemplo jal 40]
                 c_ALUOp <= 2'b01;       //Nao aplicado nesta operacao
                 c_fonte_ula <= 1'b0;    //Nao aplicado a esta operacao
-                c_desvio <= 3'b100;     //Instrucao de Desvio se Diferente
+                c_desvio <= 3'b100;     //Instrucao de Desvio incondicional
                 c_memoria <= 2'b00;     //Nao havera acesso a memoria
                 c_memtoreg <= 1'b0;     //Nao eh um load
-                c_escrever_reg <= 1'b0; //Nao vamos escrever em registradores
+                c_escrever_reg <= 1'b1; //Vamos escrever em registradores
                 c_reg_destino <= 1'b0;  //Nao aplicado a esta operacao ja que a flag de escrever no registrador esta desativada
+                c_jal <= 1'b1;
             end
 
         endcase
