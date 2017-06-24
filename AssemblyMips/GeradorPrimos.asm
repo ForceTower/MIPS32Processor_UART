@@ -13,8 +13,13 @@ loop1:
 move $t1, $zero #numero de divisores encontrados = 0
 addi $t3, $zero, 1
 loop2:
-	div $t2, $t3 #divido o numero testado por um divisor (retirado o reg de resultado)
-	mfhi $t5 #capturo o resto da divisao
+	addi $t4, $t2, 0 
+	addi $t6, $t3, 0
+	divisao: blt $t4, $t6, resto
+		sub $t4, $t4, $t6
+		j divisao
+	resto: addi $t5, $t4, 0
+	
 	beq $t5, $zero, equal #se resto da divisão for igual a zero, somo um ao contador de divisores
 	continue: addi $t3, $t3, 1 #somo um ao contador do loop
 	slt $t9, $t2, $t3
