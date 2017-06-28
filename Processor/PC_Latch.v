@@ -13,6 +13,7 @@ module PC_Latch (
         value = 32'd0;
     end
 
+    //Transfers the data from the input to the output for at least 1 clock cycle
     always @ (posedge clock) begin
         value <= (reset) ? 32'd0 : ((enable) ? data : value);
     end
