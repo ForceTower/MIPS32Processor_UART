@@ -1,5 +1,5 @@
 	addi $t0, $zero, 50
-	j kappa
+	jal kappa
 	addi $t5, $zero, 30
 	addi $t5, $zero, 30
 	addi $t5, $zero, 30

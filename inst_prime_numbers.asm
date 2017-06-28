@@ -2,7 +2,7 @@
 	myArray: .space 80 # = 250 inteiros * 4 bytes
 
 .text
-		add  $t7, $zero, $zero
+		la   $t7, myArray
 		addi $t0, $zero, 100 #limite máximo do primeiro loop
 		move $t1, $zero #contador de divisores
 		addi $t2, $zero, 0 #numero (i do primeiro loop)

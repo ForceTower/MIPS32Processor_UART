@@ -5,7 +5,8 @@
 # $t0 - Base backup
 # $t1 - Counter
 
-main:	li $s0, 2     		# Loads 4 as base
+main:
+	li $s0, 2     		# Loads 4 as base
 	li $s1, 10    		# Loads 10 as exponent		
 	move $t0, $s0  		# Copy the base value to $t0
 	li $t1, 1     		# Initialize the couter $t1
