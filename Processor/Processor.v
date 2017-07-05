@@ -278,7 +278,29 @@ module Processor (
         .id_branch_delay_slot   (id_branch_delay_slot)
     );
 
-
+    Forwarding_Hazard_Unity ForwardingHazardControl (
+        .sig_hazards    (final_signal_forwarding),
+        .id_rs          (id_rs),
+        .id_rt          (id_rt),
+        .ex_rs          (ex_rs),
+        .ex_rt          (ex_rt),
+        .ex_rt_rd       (ex_rt_rd),
+        .me_rt_rd       (me_rt_rd),
+        .wb_rt_rd       (wb_rt_rd),
+        .ex_jump_link   (ex_jump_link),
+        .ex_reg_write   (ex_reg_write),
+        .me_reg_write   (me_reg_write),
+        .wb_reg_write   (wb_reg_write),
+        .me_mem_read    (me_mem_read),
+        .me_mem_write   (me_mem_write),
+        .id_stall       (id_stall),
+        .ex_stall       (ex_stall),
+        .id_fwd_rs_sel  (id_fwd_rs_sel),
+        .id_fwd_rt_sel  (id_fwd_rt_sel),
+        .ex_fwd_rs_sel  (ex_fwd_rs_sel),
+        .ex_fwd_rt_sel  (ex_fwd_rt_sel),
+        .me_write_data_fwd_sel  (me_write_data_fwd_sel)
+    );
 
 
 
