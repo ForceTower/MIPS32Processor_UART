@@ -5,3 +5,12 @@ ProcessadorQuartus/simulation
 ProcessadorQuartus/*.bak
 ProcessadorQuartus/Processador_nativelink_simulation.rpt
 ProcessadorQuartus/Processador_nativelink_simulation.rpt
+
+
+Processor/output_files
+Processor/db
+Processor/incremental_db
+Processor/simulation
+Processor/*.bak
+Processor/PanicProcessor_nativelink_simulation.rpt
+Processor/PanicProcessor_nativelink_simulation.rpt

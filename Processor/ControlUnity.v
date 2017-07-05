@@ -229,7 +229,7 @@ module ControlUnity (
     assign if_flush = 0; //TODO Remove
 
     // if it is a BEQ and it is TAKEN!!!!!!!! Flush it OR if it is a jump also flush it
-    assign id_branch_delay_slot = (branch & signals[15]) | (signals[14]);
+    assign id_branch_delay_slot = (branch & signals[8]) | (signals[7]);
 
     //Should we sign extend the immediate?
     assign id_sign_extend = (id_opcode[5:2] != 4'b0011);

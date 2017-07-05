@@ -14,8 +14,7 @@ module Instruction_Fetch_Decode_Pipeline (
     output reg          id_bra_delay,
     output reg [31:0]   id_instruction,
     output reg [31:0]   id_pc_add_4,
-    output reg [31:0]   id_pc,
-    output reg          id_is_flushed
+    output reg [31:0]   id_pc
 );
 
     always @ (posedge clock) begin
@@ -26,8 +25,6 @@ module Instruction_Fetch_Decode_Pipeline (
         id_bra_delay   <= (reset) ? 1'b0  : ( (id_stall) ? id_bra_delay : if_bra_delay);
         //id_pc = PC to save to the register in case of branch or stall
         id_pc          <= (reset) ? 32'b0 : ( (id_stall | if_bra_delay) ? id_pc : if_pc_usable);
-        //id_is_flushed = if_flush, only in the conditions
-        id_is_flushed  <= (reset) ? 1'b0  : ( (id_stall) ? id_is_flushed : if_flush);
     end
 
 endmodule //Instruction_Fetch_Decode_Pipeline

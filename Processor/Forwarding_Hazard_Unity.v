@@ -102,7 +102,7 @@ module Forwarding_Hazard_Unity (
     wire me_fwd_1 = (rt_me_wb);
 
     //Stall if any these conditions matches
-    assign ex_stall = (ex_stall_1 | ex_stall_2) | ex_alu_stall;
+    assign ex_stall = (ex_stall_1 | ex_stall_2);
     assign id_stall = (id_stall_1 | id_stall_2 | id_stall_3 | id_stall_4) | ex_stall;
 
     //Assign the values for the selectors on ID Stage based on forwarding

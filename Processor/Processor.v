@@ -162,12 +162,12 @@ module Processor (
     );
 
     // Delays 1 cycle to change the usable PC
-    PC_Latch #(.WIDTH(32), .DEFAULT(32'b0)) PC (
+    PC_Latch PC (
         .clock  (clock),
         .reset  (reset),
         .enable (~(if_stall | id_stall)), //In case of stall PC will not change in this cycle
-        .D      (if_pc_out),
-        .Q      (if_pc_usable)
+        .data   (if_pc_out),
+        .value  (if_pc_usable)
     );
 
     //TODO Remove this Instruction Memory from here and place it outside the processor
@@ -195,10 +195,8 @@ module Processor (
         .if_pc_add_4    (if_pc_add_4),      //PC + 4 in IF Stage
         .if_pc_usable   (if_pc_usable),     //PC without the + 4
         .if_instruction (if_instruction),   //Instruction in IF Stage
-        .id_bra_delay   (id_bra_delay),     //TODO TRACK
         .id_pc_add_4    (id_pc_add_4),      //PC + 4 in ID Stage (out)
         .id_instruction (id_instruction),   //Instruction in ID Stage (out)
-        .id_is_flushed  (id_is_flushed),    //Was if_stall activated? If yes, this is a NOP
         .id_pc          (id_pc)             //PC for JAL
     );
 
@@ -222,7 +220,7 @@ module Processor (
     );
 
     //Selects the corrected value for the RS register based on forwarding
-    Mux4 #(.WIDTH(32)) ID_RS_Forwarding_Mux (
+    Multiplex4 #(.WIDTH(32)) ID_RS_Forwarding_Mux (
         .sel (id_fwd_rs_sel),   //Data Selector that came from forwarding unit
         .in0 (id_reg1_data),    //Select the data from register?
         .in1 (me_alu_result),   //Select the data that is in the ME stage
@@ -232,7 +230,7 @@ module Processor (
     );
 
     //Selects the corrected value for the Rt register based on forwarding (same as RS)
-    Mux4 #(.WIDTH(32)) ID_RT_Forwarding_Mux (
+    Multiplex4 #(.WIDTH(32)) ID_RT_Forwarding_Mux (
         .sel (id_fwd_rt_sel),
         .in0 (id_reg2_data),
         .in1 (me_alu_result),
@@ -348,7 +346,7 @@ module Processor (
         .ex_sign_extended_immediate (ex_sign_extended_immediate),
         .ex_rd                      (ex_rd),
         .ex_shamt                   (ex_shamt),
-        .ex_pc                      (ex_pc),
+        .ex_pc                      (ex_pc)
     );
 
     /**
@@ -398,7 +396,7 @@ module Processor (
         .operation  (ex_alu_op),
         .shamt      (ex_shamt),
         .result     (ex_alu_result),
-        .overflow   (ex_alu_overflow),
+        .overflow   (ex_alu_overflow)
     );
 
     //The EX ME Pipeline Register
@@ -407,7 +405,6 @@ module Processor (
         .reset          (reset),
         .ex_stall       (ex_stall),
 
-        .ex_alu_zero    (ex_alu_zero),
         .ex_mem_read    (ex_mem_read),
         .ex_mem_write   (ex_mem_write),
         .ex_mem_to_reg  (ex_mem_to_reg),
@@ -422,7 +419,7 @@ module Processor (
         .me_reg_write   (me_reg_write),
         .me_alu_result  (me_alu_result),
         .me_data2_reg   (me_data2_reg),
-        .me_rt_rd       (me_rt_rd),
+        .me_rt_rd       (me_rt_rd)
     );
 
     /**

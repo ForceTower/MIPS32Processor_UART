@@ -13,7 +13,7 @@ module RegisterFile (
     //Write data
     input           wb_reg_write,
     input [4:0]     wb_rt_rd,
-    input [31:0]    wb_write_data,
+    input [31:0]    wb_write_data
 );
     //Register 0 is not necessary since it's hardwired to 0
     reg [31:0] registers [1:31];

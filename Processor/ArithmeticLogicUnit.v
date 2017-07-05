@@ -11,7 +11,7 @@ module ArithmeticLogicUnit (
     input signed [4:0]  shamt,
 
     output reg signed [31:0]    result,
-    output reg                  overflow,
+    output reg                  overflow
 );
 
     wire               AddSub;
@@ -19,8 +19,7 @@ module ArithmeticLogicUnit (
     wire signed [31:0] B_signed;
     wire signed [31:0] AddSub_Result;
     wire signed [31:0] Mult_Result;
-    wire signed [31:0] Multu_Result;
-
+	 
     assign A_signed = A;
     assign B_signed = B;
 
@@ -29,9 +28,8 @@ module ArithmeticLogicUnit (
     //If it should add, add else subtract
     assign AddSub_Result = (AddSub) ? (A + B) : (A - B);
 
-    //Get the Result of the multiplication as well, both signed and unsigned
+    //Get the Result of the multiplication as well
     assign Mult_Result = A_signed * B_signed;
-    assign Multu_Result = A * B;
 
     //Assign values to the results [ Do the math ]
     always @ ( * ) begin
