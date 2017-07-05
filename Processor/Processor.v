@@ -135,6 +135,153 @@ module Processor (
     wire [31:0] wb_alu_result;
     wire [31:0] wb_write_data;
 
+    /* Hazards and Forwarding*/
+    wire [7:0]  id_signal_forwarding;
+    wire [7:0]  final_signal_forwarding;
+
+    // Forwarding receives the wants and needs from ID and EX
+    assign final_signal_forwarding = {id_signal_forwarding[7:4], ex_w_rs_ex, ex_n_rs_ex, ex_w_rt_ex, ex_n_rt_ex};
+    // In case of Branch ID sends a signal back to IF
+    assign if_bra_delay = id_branch_delay_slot;
+
+
+    //Processor Operation Starts...
+
+    /*
+     * Stage 1 - Instruction Fetch
+     */
+
+    //Selects one out of the 4 possible PC Sources
+    Multiplex4 #(.WIDTH(32)) PC_Source_Selection_Mux (
+        .sel (id_pc_source_sel),        // PC Selector that come from ControlUnity
+        .in0 (if_pc_add_4),             // PC + 4 (The default)
+        .in1 (id_jump_address_usable),  // PC = Jump Address (in case of jump [J, JAL])
+        .in2 (id_branch_address),       // PC = Branch Addres (In case of branch [BEQ, BNE])
+        .in3 (id_reg1_end),             // PC = Jump Address (In case of Jump Register [JR])
+        .out (if_pc_out)
+    );
+
+    // Delays 1 cycle to change the usable PC
+    PC_Latch #(.WIDTH(32), .DEFAULT(32'b0)) PC (
+        .clock  (clock),
+        .reset  (reset),
+        .enable (~(if_stall | id_stall)), //In case of stall PC will not change in this cycle
+        .D      (if_pc_out),
+        .Q      (if_pc_usable)
+    );
+
+    //TODO Remove this Instruction Memory from here and place it outside the processor
+    InstructionMemoryInterface #(.INSTRUCTION_FILE(INSTRUCTIONS)) instruction_memory (
+        .if_stall(if_stall),
+        .if_pc_usable(if_pc_usable),
+        .if_instruction(if_instruction)
+    );
+
+    // PC + 4
+    SimpleAdder PC_Increment (
+        .A (if_pc_usable),
+        .B (32'h00000004),
+        .C (if_pc_add_4)
+    );
+
+    // The IF ID Operations Pipeline
+    Instruction_Fetch_Decode_Pipeline IF_ID (
+        .clock          (clock),
+        .reset          (reset),
+        .if_flush       (if_flush),         //Should Flush IF?
+        .if_stall       (if_stall),         //Should Stall IF?
+        .id_stall       (id_stall),         //Should Stall ID?
+        .if_bra_delay   (if_bra_delay),     //TODO TRACK
+        .if_pc_add_4    (if_pc_add_4),      //PC + 4 in IF Stage
+        .if_pc_usable   (if_pc_usable),     //PC without the + 4
+        .if_instruction (if_instruction),   //Instruction in IF Stage
+        .id_bra_delay   (id_bra_delay),     //TODO TRACK
+        .id_pc_add_4    (id_pc_add_4),      //PC + 4 in ID Stage (out)
+        .id_instruction (id_instruction),   //Instruction in ID Stage (out)
+        .id_is_flushed  (id_is_flushed),    //Was if_stall activated? If yes, this is a NOP
+        .id_pc          (id_pc)             //PC for JAL
+    );
+
+    //End of Stage 1
+
+    /**
+     * Start of Stage 2 - Instruction Decode
+    */
+
+    // Read Registers and Write when needed
+    RegisterFile RegisterAccess (
+        .clock          (clock),
+        .reset          (reset),
+        .read_reg1      (id_rs),            //Register Read Address 1
+        .read_reg2      (id_rt),            //Register Read Address 2
+        .wb_rt_rd       (wb_rt_rd),         //Register Write Address
+        .wb_write_data  (wb_write_data),    //Register Write Data
+        .wb_reg_write   (wb_reg_write),     //Should Write Data to Register?
+        .id_reg1_data   (id_reg1_data),     //Data Read from Register 1
+        .id_reg2_data   (id_reg2_data)      //Data Read from Register 2
+    );
+
+    //Selects the corrected value for the RS register based on forwarding
+    Mux4 #(.WIDTH(32)) ID_RS_Forwarding_Mux (
+        .sel (id_fwd_rs_sel),   //Data Selector that came from forwarding unit
+        .in0 (id_reg1_data),    //Select the data from register?
+        .in1 (me_alu_result),   //Select the data that is in the ME stage
+        .in2 (wb_write_data),   //Select the data that is going to be written
+        .in3 (32'hxxxxxxxx),    //This will never happen, so we dont care
+        .out (id_reg1_end)      //The value forwarded
+    );
+
+    //Selects the corrected value for the Rt register based on forwarding (same as RS)
+    Mux4 #(.WIDTH(32)) ID_RT_Forwarding_Mux (
+        .sel (id_fwd_rt_sel),
+        .in0 (id_reg2_data),
+        .in1 (me_alu_result),
+        .in2 (wb_write_data),
+        .in3 (32'hxxxxxxxx),
+        .out (id_reg2_end)
+    );
+
+    //Compares to see if it is equal, so if this is a branch, we will know if we should branch or not
+    Comparator Branch_Antecipation (
+        .A      (id_reg1_end), //value from register 1
+        .B      (id_reg2_end), //value from register 2
+        .Equals (id_cmp_eq)    //Are they equal?
+    );
+
+    //Calculates the Target Branch Address
+    SimpleAdder Branch_Address_Calculation (
+        .A (id_pc_add_4),
+        .B (id_immediate_left_shifted2),
+        .C (id_branch_address)
+    );
+
+    //Creates the Control Signals
+    ControlUnity Control (
+        .id_stall               (id_stall),
+        .id_opcode              (id_opcode),
+        .id_funct               (id_funct),
+        .id_rs                  (id_rs),
+        .id_rt                  (id_rt),
+        .id_cmp_eq              (id_cmp_eq),
+        .if_flush               (if_flush), //TODO This is always 0 (remove)
+        .id_signal_forwarding   (id_signal_forwarding),
+        .id_pc_source_sel       (id_pc_source_sel),
+        .id_sign_extend         (id_sign_extend),
+        .id_jump_link           (id_jump_link),
+        .id_reg_dst             (id_reg_dst),
+        .id_alu_src             (id_alu_src),
+        .id_alu_op              (id_alu_op),
+        .id_mem_read            (id_mem_read),
+        .id_mem_write           (id_mem_write),
+        .id_mem_to_reg          (id_mem_to_reg),
+        .id_reg_write           (id_reg_write),
+        .id_branch_delay_slot   (id_branch_delay_slot)
+    );
+
+
+
+
+
 
 
 endmodule // Processor

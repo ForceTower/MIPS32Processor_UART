@@ -106,3 +106,37 @@
 `define SIG_SUBU            `SIG_R_TYPE
 `define SIG_SW              `SIG_STORE_WORD
 `define SIG_XOR             `SIG_R_TYPE
+
+
+`define HAZ_NONE            8'b00000000    // Jumps
+`define HAZ_ID_RS__ID_RT    8'b11110000    // Beq, Bne
+`define HAZ_ID_RS           8'b11000000    // Branch, JR
+`define HAZ_EX_RS__EX_RT    8'b10101111    // R-Type
+`define HAZ_EX_RS           8'b10001100    // Immediate Operations
+`define HAZ_EX_RS__WB_RT    8'b10101110    // Stores
+`define HAZ_EX_RT           8'b00100011    // Shifts that uses Shamt
+
+`define HAZ_ADD            `HAZ_EX_RS__EX_RT
+`define HAZ_ADDI           `HAZ_EX_RS
+`define HAZ_ADDIU          `HAZ_EX_RS
+`define HAZ_ADDU           `HAZ_EX_RS__EX_RT
+`define HAZ_AND            `HAZ_EX_RS__EX_RT
+`define HAZ_BEQ            `HAZ_ID_RS__ID_RT
+`define HAZ_BNE            `HAZ_ID_RS__ID_RT
+`define HAZ_J              `HAZ_NONE
+`define HAZ_JAL            `HAZ_NONE
+`define HAZ_JR             `HAZ_ID_RS
+`define HAZ_LW             `HAZ_EX_RS
+`define HAZ_MUL            `HAZ_EX_RS__EX_RT
+`define HAZ_NOR            `HAZ_EX_RS__EX_RT
+`define HAZ_OR             `HAZ_EX_RS__EX_RT
+`define HAZ_SLL            `HAZ_EX_RT
+`define HAZ_SLT            `HAZ_EX_RS__EX_RT
+`define HAZ_SLTI           `HAZ_EX_RS
+`define HAZ_SLTIU          `HAZ_EX_RS
+`define HAZ_SLTU           `HAZ_EX_RS__EX_RT
+`define HAZ_SRL            `HAZ_EX_RT
+`define HAZ_SUB            `HAZ_EX_RS__EX_RT
+`define HAZ_SUBU           `HAZ_EX_RS__EX_RT
+`define HAZ_SW             `HAZ_EX_RS__WB_RT
+`define HAZ_XOR            `HAZ_EX_RS__EX_RT
