@@ -351,6 +351,10 @@ module Processor (
         .ex_pc                      (ex_pc),
     );
 
+    /**
+     * Start of Stage 3 - Execute
+     */
+
     //Forwarding Unity [This also selects the JAL Register]
     Multiplex4 #(.WIDTH(32)) EX_RS_Forwarding_Mux (
         .sel (ex_fwd_rs_sel),   //Selector
@@ -397,8 +401,72 @@ module Processor (
         .overflow   (ex_alu_overflow),
     );
 
+    //The EX ME Pipeline Register
+    Execute_Memory_Pipeline EX_MEM (
+        .clock          (clock),
+        .reset          (reset),
+        .ex_stall       (ex_stall),
 
+        .ex_alu_zero    (ex_alu_zero),
+        .ex_mem_read    (ex_mem_read),
+        .ex_mem_write   (ex_mem_write),
+        .ex_mem_to_reg  (ex_mem_to_reg),
+        .ex_reg_write   (ex_reg_write),
+        .ex_alu_result  (ex_alu_result),
+        .ex_reg2_fwd    (ex_reg2_fwd),
+        .ex_rt_rd       (ex_rt_rd),
 
+        .me_mem_read    (me_mem_read),
+        .me_mem_write   (me_mem_write),
+        .me_mem_to_reg  (me_mem_to_reg),
+        .me_reg_write   (me_reg_write),
+        .me_alu_result  (me_alu_result),
+        .me_data2_reg   (me_data2_reg),
+        .me_rt_rd       (me_rt_rd),
+    );
 
+    /**
+    * Start of Stage 4 - Memory
+    */
 
+    //Selects the valid data based on forwarding unity
+    assign me_mem_write_data = (me_write_data_fwd_sel) ? wb_write_data : me_data2_reg;
+
+    //Read or Write the memory TODO take this off this module
+    DataMemoryInterface DataMemory(
+        .clock          (clock),
+        .reset          (reset),
+        .address        (me_alu_result),
+
+        .mem_write      (me_mem_write),
+        .data_write     (me_mem_write_data),
+
+        .mem_read       (me_mem_read),
+        .read_data      (me_mem_read_data)
+    );
+
+    //The ME WB Pipeline Register
+    Memory_WriteBack_Pipeline MEM_WB (
+        .clock              (clock),
+        .reset              (reset),
+
+        .me_reg_write       (me_reg_write),
+        .me_mem_to_reg      (me_mem_to_reg),
+        .me_mem_read_data   (me_mem_read_data),
+        .me_alu_result      (me_alu_result),
+        .me_rt_rd           (me_rt_rd),
+
+        .wb_reg_write       (wb_reg_write),
+        .wb_mem_to_reg      (wb_mem_to_reg),
+        .wb_data_memory     (wb_data_memory),
+        .wb_alu_result      (wb_alu_result),
+        .wb_rt_rd           (wb_rt_rd)
+    );
+
+    /**
+    * Start of Stage 5 - Write Back
+    */
+
+    //Selects between data read from memory or alu result
+    assign wb_write_data = (wb_mem_to_reg) ? wb_data_memory : wb_alu_result;
 endmodule // Processor
