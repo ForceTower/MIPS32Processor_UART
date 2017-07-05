@@ -351,6 +351,52 @@ module Processor (
         .ex_pc                      (ex_pc),
     );
 
+    //Forwarding Unity [This also selects the JAL Register]
+    Multiplex4 #(.WIDTH(32)) EX_RS_Forwarding_Mux (
+        .sel (ex_fwd_rs_sel),   //Selector
+        .in0 (ex_reg1_data),    //00 - Register Data
+        .in1 (me_alu_result),   //01 - Data on ME
+        .in2 (wb_write_data),   //10 - Data on WB
+        .in3 (ex_pc),           //11 - JAL [PC]
+        .out (ex_reg1_fwd)
+    );
+
+    //Forwarding Unity [This also selects the JAL Offset(PC + 4)]
+    Multiplex4 #(.WIDTH(32)) EX_RT_Forwarding_Mux (
+        .sel (ex_fwd_rt_sel),   //Selector
+        .in0 (ex_reg2_data),    //00 - Register Data
+        .in1 (me_alu_result),   //01 - Data on ME
+        .in2 (wb_write_data),   //10 - Data on WB
+        .in3 (32'h00000004),    //11 - JAL [4]
+        .out (ex_reg2_fwd)
+    );
+
+    //Use the immediate or data from registers? (take decision based on Control Signal)
+    assign ex_data2_imm = (ex_alu_src) ? ex_sign_extended_immediate : ex_reg2_fwd;
+
+    //Select the destination Register
+    Multiplex4 #(.WIDTH(5)) EX_Reg_Destination_Mux (
+        .sel (ex_jump_link_reg_dst),    //Selector
+        .in0 (ex_rt),                   //00 - Select RT
+        .in1 (ex_rd),                   //01 - Select RD
+        .in2 (5'b11111),                //10 - Select Register 31 (JAL)
+        .in3 (5'bxxxxx),                //11 - Never happening
+        .out (ex_rt_rd)
+    );
+
+    //Do the math
+    ArithmeticLogicUnit ALU (
+        .clock      (clock),
+        .reset      (reset),
+        .stall      (ex_stall),
+        .A          (ex_reg1_fwd),
+        .B          (ex_data2_imm),
+        .operation  (ex_alu_op),
+        .shamt      (ex_shamt),
+        .result     (ex_alu_result),
+        .overflow   (ex_alu_overflow),
+    );
+
 
 
 

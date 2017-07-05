@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-`include "Parameters.v"
+`include "Constants.v"
 
 module ControlUnity (
     input       id_stall,
