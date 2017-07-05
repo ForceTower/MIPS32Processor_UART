@@ -184,7 +184,7 @@ module Processor (
         .C (if_pc_add_4)
     );
 
-    // The IF ID Operations Pipeline
+    // The IF ID Pipeline Register
     Instruction_Fetch_Decode_Pipeline IF_ID (
         .clock          (clock),
         .reset          (reset),
@@ -278,6 +278,7 @@ module Processor (
         .id_branch_delay_slot   (id_branch_delay_slot)
     );
 
+    //Forwarding And Hazard Unity
     Forwarding_Hazard_Unity ForwardingHazardControl (
         .sig_hazards    (final_signal_forwarding),
         .id_rs          (id_rs),
@@ -300,6 +301,54 @@ module Processor (
         .ex_fwd_rs_sel  (ex_fwd_rs_sel),
         .ex_fwd_rt_sel  (ex_fwd_rt_sel),
         .me_write_data_fwd_sel  (me_write_data_fwd_sel)
+    );
+
+    // The ID EX Pipeline Register
+    Instruction_Decode_Execute_Pipeline ID_EX (
+        .clock                      (clock),
+        .reset                      (reset),
+        .id_stall                   (id_stall),
+        .ex_stall                   (ex_stall),
+
+        .id_jump_link               (id_jump_link),
+        .id_reg_dst                 (id_reg_dst),
+        .id_alu_src                 (id_alu_src),
+        .id_alu_op                  (id_alu_op),
+        .id_mem_read                (id_mem_read),
+        .id_mem_write               (id_mem_write),
+        .id_mem_to_reg              (id_mem_to_reg),
+        .id_reg_write               (id_reg_write),
+        .id_rs                      (id_rs),
+        .id_rt                      (id_rt),
+        .id_w_rs_ex                 (id_signal_forwarding[3]),
+        .id_n_rs_ex                 (id_signal_forwarding[2]),
+        .id_w_rt_ex                 (id_signal_forwarding[1]),
+        .id_n_rt_ex                 (id_signal_forwarding[0]),
+        .id_reg1_end                (id_reg1_end),
+        .id_reg2_end                (id_reg2_end),
+        .id_sign_extended_immediate (id_sign_extended_immediate[16:0]),
+        .id_pc                      (id_pc),
+
+        .ex_jump_link               (ex_jump_link),
+        .ex_jump_link_reg_dst       (ex_jump_link_reg_dst),
+        .ex_alu_src                 (ex_alu_src),
+        .ex_alu_op                  (ex_alu_op),
+        .ex_mem_read                (ex_mem_read),
+        .ex_mem_write               (ex_mem_write),
+        .ex_mem_to_reg              (ex_mem_to_reg),
+        .ex_reg_write               (ex_reg_write),
+        .ex_rs                      (ex_rs),
+        .ex_rt                      (ex_rt),
+        .ex_w_rs_ex                 (ex_w_rs_ex),
+        .ex_n_rs_ex                 (ex_n_rs_ex),
+        .ex_w_rt_ex                 (ex_w_rt_ex),
+        .ex_n_rt_ex                 (ex_n_rt_ex),
+        .ex_reg1_data               (ex_reg1_data),
+        .ex_reg2_data               (ex_reg2_data),
+        .ex_sign_extended_immediate (ex_sign_extended_immediate),
+        .ex_rd                      (ex_rd),
+        .ex_shamt                   (ex_shamt),
+        .ex_pc                      (ex_pc),
     );
 
 
