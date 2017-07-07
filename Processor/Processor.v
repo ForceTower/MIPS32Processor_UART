@@ -12,10 +12,70 @@ module Processor (
     output          me_memory_write_out,
     output          me_memory_read_out,
     output [31:0]   me_memory_data_write_out,
-    input  [31:0]   me_memory_data_read_in
+    input  [31:0]   me_memory_data_read_in,
+	 
+	 output [31:0] dif_instruction,
+    output [31:0] dif_pc_usable,
+    output [31:0] did_instruction,
+    output [31:0] did_pc_usable,
+    output [31:0] did_rt_data,
+    output [31:0] did_rs_data,
+    output [31:0] did_se_immediate,
+    output [4:0]  did_rt,
+    output [4:0]  did_rs,
+    output [31:0] dwb_write_data,
+    output [31:0] dex_alu_result,
+    output [31:0] dex_alu_a,
+    output [31:0] dex_alu_b,
+    output [4:0]  dex_alu_op,
+    output [4:0]  dme_rt_rd,
+    output [31:0] dme_data_mem,
+    output [31:0] dme_data_write_mem,
+    output [4:0]  dwb_rt_rd,
+    output        dif_flush,
+    output        did_flush,
+    output        dex_alu_src,
+    output [1:0]  dex_fwd_rt_sel,
+    output [1:0]  dex_fwd_rs_sel,
+    output        dif_stall,
+    output        did_stall,
+    output        dwb_write_reg,
+    output        dme_write_mem,
+    output        dme_read_mem,
+    output        did_branch_delay_slot
 );
 
-    parameter INSTRUCTIONS = "C:/Outros/MI-SD/TEC499-Sistemas-Digitais/inst_jump_branch.txt";
+    parameter INSTRUCTIONS = "C:/Outros/MI-SD/TEC499-Sistemas-Digitais/inst_load_store.txt";
+    //Debug assigns
+    assign dif_instruction = if_instruction;
+    assign dif_pc_usable = if_pc_add_4;
+    assign did_instruction = id_instruction;
+    assign did_pc_usable = id_pc_add_4;
+    assign did_rs_data = id_reg1_end;
+    assign did_rt_data = id_reg2_end;
+    assign did_rt = id_rt;
+    assign did_rs = id_rs;
+    assign did_se_immediate = id_sign_extended_immediate;
+    assign dwb_rt_rd = wb_rt_rd;
+    assign dwb_write_data = wb_write_data;
+    assign dex_alu_result = ex_alu_result;
+    assign dex_alu_a = ex_reg1_fwd;
+    assign dex_alu_b = ex_data2_imm;
+    assign dex_alu_op = ex_alu_op;
+    assign dme_rt_rd = me_rt_rd;
+    assign dme_data_mem = me_mem_read_data;
+    assign dme_data_write_mem = me_mem_write_data;
+    assign dif_flush = if_flush;
+    assign dex_alu_src = ex_alu_src;
+    assign dex_fwd_rt_sel = ex_fwd_rt_sel;
+    assign dex_fwd_rs_sel = ex_fwd_rs_sel;
+    assign dif_stall = if_stall;
+    assign did_stall = id_stall;
+    assign dwb_write_reg = wb_reg_write;
+    assign dme_write_mem = me_mem_write;
+    assign dme_read_mem = me_mem_read;
+    assign did_branch_delay_slot = if_bra_delay;
+
 
     /* IF Stage Signals */
     wire        if_stall;       //Should Stall IF?
