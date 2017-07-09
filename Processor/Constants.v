@@ -107,7 +107,16 @@
 `define SIG_SW              `SIG_STORE_WORD
 `define SIG_XOR             `SIG_R_TYPE
 
-
+/**
+ * 7 - Wants RS in ID
+ * 6 - Needs RS in ID
+ * 5 - Wants RT in ID
+ * 4 - Needs RT in ID
+ * 3 - Wants RS in EX
+ * 2 - Needs RS in EX
+ * 1 - Wants RT in EX
+ * 0 - Needs RT in EX
+ */
 `define HAZ_NONE            8'b00000000    // Jumps
 `define HAZ_ID_RS__ID_RT    8'b11110000    // Beq, Bne
 `define HAZ_ID_RS           8'b11000000    // Branch, JR

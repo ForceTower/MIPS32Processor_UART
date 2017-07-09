@@ -232,9 +232,9 @@ module Processor (
 
     //TODO Remove this Instruction Memory from here and place it outside the processor
     InstructionMemoryInterface #(.INSTRUCTION_FILE(INSTRUCTIONS)) instruction_memory (
-        .if_stall(if_stall),
-        .if_pc_usable(if_pc_usable),
-        .if_instruction(if_instruction)
+        .if_stall       (if_stall),
+        .if_pc_usable   (if_pc_usable),
+        .if_instruction (if_instruction)
     );
 
     // PC + 4
