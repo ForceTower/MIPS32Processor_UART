@@ -2,9 +2,6 @@
 `include "Constants.v"
 
 module ArithmeticLogicUnit (
-    input               clock,
-    input               reset,
-    input               stall,
     input [31:0]        A,
     input [31:0]        B,
     input [4:0]         operation,
@@ -19,7 +16,7 @@ module ArithmeticLogicUnit (
     wire signed [31:0] B_signed;
     wire signed [31:0] AddSub_Result;
     wire signed [31:0] Mult_Result;
-	 
+
     assign A_signed = A;
     assign B_signed = B;
 

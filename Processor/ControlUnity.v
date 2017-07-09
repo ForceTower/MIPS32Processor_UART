@@ -5,8 +5,6 @@ module ControlUnity (
     input       id_stall,
     input [5:0] id_opcode,
     input [5:0] id_funct,
-    input [4:0] id_rs,
-    input [4:0] id_rt,
     input       id_cmp_eq,
 
     output              if_flush,

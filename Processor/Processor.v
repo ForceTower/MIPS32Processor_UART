@@ -13,8 +13,8 @@ module Processor (
     output          me_memory_read_out,
     output [31:0]   me_memory_data_write_out,
     input  [31:0]   me_memory_data_read_in,
-	 
-	 output [31:0] dif_instruction,
+
+    output [31:0] dif_instruction,
     output [31:0] dif_pc_usable,
     output [31:0] did_instruction,
     output [31:0] did_pc_usable,
@@ -42,39 +42,10 @@ module Processor (
     output        dwb_write_reg,
     output        dme_write_mem,
     output        dme_read_mem,
-    output        did_branch_delay_slot
+    output        did_branch_delay_slot //Last line comment
 );
 
     parameter INSTRUCTIONS = "C:/Outros/MI-SD/TEC499-Sistemas-Digitais/inst_load_store.txt";
-    //Debug assigns
-    assign dif_instruction = if_instruction;
-    assign dif_pc_usable = if_pc_add_4;
-    assign did_instruction = id_instruction;
-    assign did_pc_usable = id_pc_add_4;
-    assign did_rs_data = id_reg1_end;
-    assign did_rt_data = id_reg2_end;
-    assign did_rt = id_rt;
-    assign did_rs = id_rs;
-    assign did_se_immediate = id_sign_extended_immediate;
-    assign dwb_rt_rd = wb_rt_rd;
-    assign dwb_write_data = wb_write_data;
-    assign dex_alu_result = ex_alu_result;
-    assign dex_alu_a = ex_reg1_fwd;
-    assign dex_alu_b = ex_data2_imm;
-    assign dex_alu_op = ex_alu_op;
-    assign dme_rt_rd = me_rt_rd;
-    assign dme_data_mem = me_mem_read_data;
-    assign dme_data_write_mem = me_mem_write_data;
-    assign dif_flush = if_flush;
-    assign dex_alu_src = ex_alu_src;
-    assign dex_fwd_rt_sel = ex_fwd_rt_sel;
-    assign dex_fwd_rs_sel = ex_fwd_rs_sel;
-    assign dif_stall = if_stall;
-    assign did_stall = id_stall;
-    assign dwb_write_reg = wb_reg_write;
-    assign dme_write_mem = me_mem_write;
-    assign dme_read_mem = me_mem_read;
-    assign did_branch_delay_slot = if_bra_delay;
 
 
     /* IF Stage Signals */
@@ -88,7 +59,7 @@ module Processor (
     wire        if_bra_delay;   //Is this instruction a Branch Delay?
 
     /* ID Stage Signals */
-    //Control
+    // Control
     wire        id_stall;       //Should Stall ID?
     wire        id_reg_dst;     //What is the destination register? RD or RT?
     wire        id_alu_src;     //Should Use Immediate or Register Value?
@@ -102,7 +73,6 @@ module Processor (
     wire [4:0]  id_alu_op;      //What is the operation that the ALU should execute?
     wire        id_branch_delay_slot; //Did ID recognized that we are branching?
 
-    //Forwarding
     // Forwarding
     wire [1:0]  id_fwd_rs_sel;  //What value for RS should we select EX, ME, WB or the one we read?
     wire [1:0]  id_fwd_rt_sel;  //The same thing, but its RT
@@ -115,6 +85,7 @@ module Processor (
     wire [1:0]  id_pc_source_sel;   //What PC should we use? PC+4, Jump Address, Branch Address, Register Address?
 
     // General
+    wire [31:0] id_instruction;                     //The instruction
     wire [4:0]  id_rs = id_instruction[25:21];      //Extract the value of rs from instruction
     wire [4:0]  id_rt = id_instruction[20:16];      //Extract the value of rt from instruction
     wire [5:0]  id_opcode = id_instruction[31:26];  //Extract the opcode
@@ -124,7 +95,6 @@ module Processor (
     wire [31:0] id_reg2_data;                       //Data read from register
     wire [31:0] id_reg2_end;                        //Data forwarded or not in this stage
     wire [31:0] id_immediate = id_instruction[15:0]; //Extract the immediate from instruction
-    wire [31:0] id_instruction;                     //The instruction
     wire [31:0] id_pc_add_4;                        //The PC+4 used for branch calculation
     wire [31:0] id_pc;                              //The PC used for JAL
     wire [31:0] id_jump_address = id_instruction[25:0]; //Extract the jump address from instruction
@@ -203,6 +173,36 @@ module Processor (
     assign final_signal_forwarding = {id_signal_forwarding[7:4], ex_w_rs_ex, ex_n_rs_ex, ex_w_rt_ex, ex_n_rt_ex};
     // In case of Branch ID sends a signal back to IF
     assign if_bra_delay = id_branch_delay_slot;
+
+    //Debug assigns
+    assign dif_instruction = if_instruction;
+    assign dif_pc_usable = if_pc_add_4;
+    assign did_instruction = id_instruction;
+    assign did_pc_usable = id_pc_add_4;
+    assign did_rs_data = id_reg1_end;
+    assign did_rt_data = id_reg2_end;
+    assign did_rt = id_rt;
+    assign did_rs = id_rs;
+    assign did_se_immediate = id_sign_extended_immediate;
+    assign dwb_rt_rd = wb_rt_rd;
+    assign dwb_write_data = wb_write_data;
+    assign dex_alu_result = ex_alu_result;
+    assign dex_alu_a = ex_reg1_fwd;
+    assign dex_alu_b = ex_data2_imm;
+    assign dex_alu_op = ex_alu_op;
+    assign dme_rt_rd = me_rt_rd;
+    assign dme_data_mem = me_mem_read_data;
+    assign dme_data_write_mem = me_mem_write_data;
+    assign dif_flush = if_flush;
+    assign dex_alu_src = ex_alu_src;
+    assign dex_fwd_rt_sel = ex_fwd_rt_sel;
+    assign dex_fwd_rs_sel = ex_fwd_rs_sel;
+    assign dif_stall = if_stall;
+    assign did_stall = id_stall;
+    assign dwb_write_reg = wb_reg_write;
+    assign dme_write_mem = me_mem_write;
+    assign dme_read_mem = me_mem_read;
+    assign did_branch_delay_slot = if_bra_delay;
 
 
     //Processor Operation Starts...
@@ -318,8 +318,6 @@ module Processor (
         .id_stall               (id_stall),
         .id_opcode              (id_opcode),
         .id_funct               (id_funct),
-        .id_rs                  (id_rs),
-        .id_rt                  (id_rt),
         .id_cmp_eq              (id_cmp_eq),
         .if_flush               (if_flush), //TODO This is always 0 (remove)
         .id_signal_forwarding   (id_signal_forwarding),
@@ -448,9 +446,6 @@ module Processor (
 
     //Do the math
     ArithmeticLogicUnit ALU (
-        .clock      (clock),
-        .reset      (reset),
-        .stall      (ex_stall),
         .A          (ex_reg1_fwd),
         .B          (ex_data2_imm),
         .operation  (ex_alu_op),
