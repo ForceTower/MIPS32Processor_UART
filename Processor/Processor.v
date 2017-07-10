@@ -350,6 +350,7 @@ module Processor (
         .wb_reg_write   (wb_reg_write),
         .me_mem_read    (me_mem_read),
         .me_mem_write   (me_mem_write),
+        .me_mem_to_reg  (me_mem_to_reg),
         .id_stall       (id_stall),
         .ex_stall       (ex_stall),
         .id_fwd_rs_sel  (id_fwd_rs_sel),

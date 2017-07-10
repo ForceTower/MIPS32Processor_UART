@@ -11,7 +11,7 @@ module Instruction_Fetch_Decode_Pipeline (
     input [31:0]    if_pc_add_4,
     input [31:0]    if_pc_usable,
 
-    output reg          id_bra_delay,
+    //output reg          id_bra_delay,
     output reg [31:0]   id_instruction,
     output reg [31:0]   id_pc_add_4,
     output reg [31:0]   id_pc
@@ -22,7 +22,7 @@ module Instruction_Fetch_Decode_Pipeline (
         id_instruction <= (reset) ? 32'b0 : ( (id_stall) ? id_instruction : ( (if_stall | if_flush | if_bra_delay) ? 32'b0 : if_instruction ) );
         //id_pc_add_4 = if_pc_add_4 if, and only if, there's no stall or we're not reseting
         id_pc_add_4    <= (reset) ? 32'b0 : ( (id_stall) ? id_pc_add_4 : if_pc_add_4);
-        id_bra_delay   <= (reset) ? 1'b0  : ( (id_stall) ? id_bra_delay : if_bra_delay);
+        //id_bra_delay   <= (reset) ? 1'b0  : ( (id_stall) ? id_bra_delay : if_bra_delay);
         //id_pc = PC to save to the register in case of branch or stall
         id_pc          <= (reset) ? 32'b0 : ( (id_stall | if_bra_delay) ? id_pc : if_pc_usable);
     end
