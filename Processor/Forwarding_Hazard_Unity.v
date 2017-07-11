@@ -113,7 +113,7 @@ module Forwarding_Hazard_Unity (
     assign ex_fwd_rs_sel = (ex_jump_link) ? 2'b11 : ( (ex_fwd_1) ? 2'b01 : ( (ex_fwd_3) ? 2'b10 : 2'b00) );
     assign ex_fwd_rt_sel = (ex_jump_link) ? 2'b11 : ( (ex_fwd_2) ? 2'b01 : ( (ex_fwd_4) ? 2'b10 : 2'b00) );
 
-    //Assign the values for the selectors on ME Stage based on forwarding 
+    //Assign the values for the selectors on ME Stage based on forwarding
     assign me_write_data_fwd_sel = (me_fwd_1);
 
 endmodule // Forwarding_Hazard_Unity

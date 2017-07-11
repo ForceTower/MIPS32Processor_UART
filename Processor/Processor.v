@@ -5,7 +5,7 @@
 module Processor (
     input clock,
     input reset,
-
+/*
     output [31:0]   if_pc_fetch_address_out,
     input  [31:0]   if_instruction_in,
 
@@ -13,7 +13,7 @@ module Processor (
     output          me_memory_read_out,
     output [31:0]   me_memory_data_write_out,
     input  [31:0]   me_memory_data_read_in,
-
+*/
     output [31:0] dif_instruction,
     output [31:0] dif_pc_usable,
     output [31:0] did_instruction,
@@ -214,7 +214,7 @@ module Processor (
     //Selects one out of the 4 possible PC Sources
     Multiplex4 #(.WIDTH(32)) PC_Source_Selection_Mux (
         .sel (id_pc_source_sel),        // PC Selector that come from ControlUnity
-        .in0 (if_pc_add_4),             // PC + 4 (The default)
+        .in0 (if_pc_add_4),             // PC = PC + 4 (The default)
         .in1 (id_jump_address_usable),  // PC = Jump Address (in case of jump [J, JAL])
         .in2 (id_branch_address),       // PC = Branch Addres (In case of branch [BEQ, BNE])
         .in3 (id_reg1_end),             // PC = Jump Address (In case of Jump Register [JR])
@@ -248,7 +248,7 @@ module Processor (
     Instruction_Fetch_Decode_Pipeline IF_ID (
         .clock          (clock),
         .reset          (reset),
-        .if_flush       (if_flush),         //Should Flush IF?
+        .if_flush       (if_flush),         //Should Flush IF? //sempre 0
         .if_stall       (if_stall),         //Should Stall IF?
         .id_stall       (id_stall),         //Should Stall ID?
         .if_bra_delay   (if_bra_delay),     //TODO TRACK

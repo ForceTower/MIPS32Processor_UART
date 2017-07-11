@@ -1,4 +1,4 @@
-	addi 	$t0, $zero, 100 	#100
+	addi 	$t0, $zero, 100 #100
 	sw	$t0, 0($zero)		#salva 100
 	add	$t0, $t0, $t0		#200
 	add	$t0, $t0, $t0		#400
@@ -9,6 +9,6 @@
 	sub	$t3, $t1, $t2		#t3 = 300
 	sw	$t3, 0($zero)		#salva 300
 	lw	$t5, 0($zero)		#carrega 300
-	addi	$t5, $t5, 700		#t5 = 1000
+	addi	$t5, $t5, 700	#t5 = 1000
 	
 	
