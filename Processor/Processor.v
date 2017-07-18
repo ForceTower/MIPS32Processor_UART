@@ -5,15 +5,7 @@
 module Processor (
     input clock,
     input reset,
-/*
-    output [31:0]   if_pc_fetch_address_out,
-    input  [31:0]   if_instruction_in,
 
-    output          me_memory_write_out,
-    output          me_memory_read_out,
-    output [31:0]   me_memory_data_write_out,
-    input  [31:0]   me_memory_data_read_in,
-*/
     output [31:0] dif_instruction,
     output [31:0] dif_pc_usable,
     output [31:0] did_instruction,
