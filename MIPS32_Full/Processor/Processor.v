@@ -6,11 +6,13 @@ module Processor (
     input clock,
     input reset,
 
-    output          me_memory_write_out,
-    output          me_memory_read_out,
-    output [31:0]   me_memory_data_write_out,
-    output [31:0]   me_memory_address_out,
-    input  [31:0]   me_memory_data_read_in
+    output              d_test_valid,
+
+    output reg          me_memory_write_out,
+    output reg          me_memory_read_out,
+    output reg [31:0]   me_memory_data_write_out,
+    output reg [31:0]   me_memory_address_out,
+    input      [31:0]   me_memory_data_read_in
 /*
     output [31:0] dif_instruction,
     output [31:0] dif_pc_usable,
@@ -43,7 +45,7 @@ module Processor (
     output        did_branch_delay_slot //Last line comment*/
 );
 
-    parameter INSTRUCTIONS = "C:/Outros/MI-SD/TEC499-Sistemas-Digitais/inst_load_store.txt";
+    parameter INSTRUCTIONS = "C:/Outros/Full Processor/MIPS32_Processor/Final Project/MIPS32_Full/Testing Codes/Exponential.txt";
 
 
     /* IF Stage Signals */
@@ -171,6 +173,16 @@ module Processor (
     assign final_signal_forwarding = {id_signal_forwarding[7:4], ex_w_rs_ex, ex_n_rs_ex, ex_w_rt_ex, ex_n_rt_ex};
     // In case of Branch ID sends a signal back to IF
     assign if_bra_delay = id_branch_delay_slot;
+
+    always @ ( * ) begin
+         me_memory_address_out    <= me_alu_result;
+         me_memory_write_out      <= me_mem_write;
+         me_memory_read_out       <= me_mem_read;
+         me_memory_data_write_out <= me_mem_write_data;
+    end
+
+    assign me_mem_read_data        = me_memory_data_read_in;
+
 
 /*
     //Debug assigns
@@ -484,14 +496,8 @@ module Processor (
     //Selects the valid data based on forwarding unity
     assign me_mem_write_data = (me_write_data_fwd_sel) ? wb_write_data : me_data2_reg;
 
-    assign me_memory_address_out    = me_alu_result;
-    assign me_memory_write_out      = me_mem_write;
-    assign me_memory_read_out       = me_mem_read;
-    assign me_memory_data_write_out = me_mem_write_data;
-    assign me_mem_read_data         = me_memory_data_read_in;
-
     //Read or Write the memory TODO take this off this module
-    /*
+/*
     DataMemoryInterface DataMemory(
         .clock          (clock),
         .reset          (reset),
@@ -502,8 +508,9 @@ module Processor (
 
         .mem_read       (me_mem_read),
         .read_data      (me_mem_read_data)
-    );
-    */
+    );*/
+
+    assign d_test_valid = (me_alu_result >= 32'd256) ? 1'b1 : 1'b0;
 
     //The ME WB Pipeline Register
     Memory_WriteBack_Pipeline MEM_WB (

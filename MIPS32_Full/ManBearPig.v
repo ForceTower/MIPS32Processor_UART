@@ -4,19 +4,36 @@ module ManBearPig (
     input   clock,
     input   reset,
 
-    input   rx_source,
-    output  tx_source
+    input   rx_source_0,
+    output  tx_source_0,
+
+    input   rx_source_1,
+    output  tx_source_1, //This line is great again
+
+    output  d_test_valid,
+
+    output  d_uart0_read,
+    output  d_uart1_read,
+    output  d_uart0_write,
+    output  d_uart1_write,
+    output  d_mem_read,
+    output  d_mem_write,
+
+    output [1:0] d_mem_map,
+
+    output [31:0] d_datamemory_address
 );
 
     //Processor Instructions Interface
-    wire        instruction_ready;
+    /*
     wire        instruction_read;
     wire [31:0] instruction_address;
     wire [31:0] instruction;
+    */
+
     //Processor Memory Interface
     wire        datamemory_write;
     wire        datamemory_read;
-    reg         datamemory_ready;
     wire [31:0] datamemory_read_data;
     wire [31:0] datamemory_write_data;
     wire [31:0] datamemory_address;
@@ -38,11 +55,19 @@ module ManBearPig (
     wire [31:0] uart1_data;
     wire        uart1_tx;
 
-    //Currently selected UART
-    reg current_uart = 0;
-
     //Memory Map
     reg [1:0] memory_map;
+
+    assign d_uart0_read  = (uart0_read);
+    assign d_uart1_read  = (uart1_read);
+    assign d_uart0_write = (uart0_write);
+    assign d_uart1_write = (uart1_write);
+
+    assign d_mem_read = (datamemory_read);
+    assign d_mem_write = (datamemory_write);
+
+    assign d_mem_map = (memory_map);
+    assign d_datamemory_address = datamemory_address;
 
     Processor MIPS_Processor (
         .clock                      (clock),
@@ -54,7 +79,9 @@ module ManBearPig (
         .me_memory_data_read_in     (datamemory_read_data),
 
         .me_memory_write_out        (datamemory_write),
-        .me_memory_data_write_out   (datamemory_write_data)
+        .me_memory_data_write_out   (datamemory_write_data),
+
+        .d_test_valid               (d_test_valid)
     );
 
     MemoryMappedUART UART0 (
@@ -62,7 +89,7 @@ module ManBearPig (
         .reset              (reset),
         .selected           (1'b1),
 
-        .rx_signal          (rx_source),
+        .rx_signal          (rx_source_0),
         .tx_signal          (uart0_tx),
 
         .address            (datamemory_address[7:0]),
@@ -78,7 +105,7 @@ module ManBearPig (
         .reset              (reset),
         .selected           (1'b1),
 
-        .rx_signal          (rx_source),
+        .rx_signal          (rx_source_1),
         .tx_signal          (uart1_tx),
 
         .address            (datamemory_address[7:0]),
@@ -146,6 +173,7 @@ module ManBearPig (
         .out    (datamemory_read_data)
     );
 
-    assign tx_source = (current_uart == 1'b0) ? uart0_tx : uart1_tx;
+    assign tx_source_0 = uart0_tx;
+    assign tx_source_1 = uart1_tx;
 
 endmodule // ManBearPig
